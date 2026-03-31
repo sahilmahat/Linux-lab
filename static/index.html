@@ -8,167 +8,328 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0f0f0f;
+      background: #080c10;
       color: #e0e0e0;
       font-family: 'Courier New', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       min-height: 100vh;
       padding: 40px 20px;
     }
 
+    /* ── HEADER ── */
     header {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 50px;
     }
 
     header h1 {
-      font-size: 2.8rem;
+      font-size: 3rem;
       color: #00ff99;
-      text-shadow: 0 0 10px #00ff99;
-      letter-spacing: 4px;
+      text-shadow: 0 0 20px #00ff9966, 0 0 40px #00ff9933;
+      letter-spacing: 6px;
     }
 
     header p {
-      color: #888;
-      margin-top: 8px;
-      font-size: 0.95rem;
+      color: #555;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
     }
 
-    .search-box {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 40px;
+    .badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 14px;
+      border: 1px solid #00ff9944;
+      border-radius: 20px;
+      color: #00ff9988;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+    }
+
+    /* ── SEARCH ── */
+    .search-wrapper {
+      max-width: 620px;
+      margin: 0 auto 50px;
+      position: relative;
+    }
+
+    .search-wrapper input {
       width: 100%;
-      max-width: 600px;
-    }
-
-    .search-box input {
-      flex: 1;
-      padding: 14px 18px;
-      background: #1a1a1a;
-      border: 1px solid #00ff99;
-      border-radius: 8px;
+      padding: 16px 130px 16px 20px;
+      background: #0f1419;
+      border: 1px solid #1e3a2a;
+      border-radius: 10px;
       color: #e0e0e0;
       font-size: 1rem;
       font-family: 'Courier New', monospace;
       outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
     }
 
-    .search-box input::placeholder { color: #555; }
+    .search-wrapper input:focus {
+      border-color: #00ff99;
+      box-shadow: 0 0 15px #00ff9922;
+    }
 
-    .search-box button {
-      padding: 14px 24px;
+    .search-wrapper input::placeholder { color: #333; }
+
+    .search-wrapper button {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 10px 22px;
       background: #00ff99;
-      color: #0f0f0f;
+      color: #080c10;
       border: none;
-      border-radius: 8px;
+      border-radius: 7px;
       font-weight: bold;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       font-family: 'Courier New', monospace;
-      transition: background 0.2s;
+      transition: background 0.2s, box-shadow 0.2s;
     }
 
-    .search-box button:hover { background: #00cc77; }
-
-    .result-box {
-      width: 100%;
-      max-width: 600px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 24px;
-      display: none;
+    .search-wrapper button:hover {
+      background: #00cc77;
+      box-shadow: 0 0 12px #00ff9944;
     }
 
-    .result-box h2 {
+    /* ── CATEGORIES GRID ── */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      max-width: 980px;
+      margin: 0 auto 50px;
+    }
+
+    .category {
+      background: #0d1117;
+      border: 1px solid #1a2a1e;
+      border-radius: 12px;
+      padding: 18px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .category:hover {
+      border-color: #00ff9944;
+      box-shadow: 0 0 20px #00ff9911;
+    }
+
+    .category h3 {
       color: #00ff99;
-      margin-bottom: 16px;
-      font-size: 1.1rem;
+      font-size: 0.8rem;
+      margin-bottom: 14px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
+      border-bottom: 1px solid #1a2a1e;
+      padding-bottom: 10px;
+    }
+
+    .category button {
+      display: block;
+      width: 100%;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      background: transparent;
+      border: 1px solid #1a2a1e;
+      color: #8899aa;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .category button:hover {
+      border-color: #00ff9966;
+      color: #00ff99;
+      background: #0a1f14;
+      padding-left: 16px;
+    }
+
+    /* ── RESULT BOX ── */
+    .result-box {
+      max-width: 680px;
+      margin: 0 auto 60px;
+      background: #0d1117;
+      border: 1px solid #1a2a1e;
+      border-radius: 14px;
+      padding: 28px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #1a2a1e;
+    }
+
+    .result-header .dot {
+      width: 10px;
+      height: 10px;
+      background: #00ff99;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00ff99;
+      flex-shrink: 0;
+    }
+
+    .result-header h2 {
+      color: #00ff99;
+      font-size: 1rem;
       letter-spacing: 2px;
+      text-transform: uppercase;
     }
 
     .result-box ol {
-      padding-left: 20px;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: steps;
     }
 
     .result-box ol li {
-      margin-bottom: 12px;
-      line-height: 1.6;
-      color: #ccc;
+      counter-increment: steps;
+      margin-bottom: 14px;
+      line-height: 1.7;
+      color: #aabbcc;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .result-box ol li::before {
+      content: counter(steps);
+      min-width: 24px;
+      height: 24px;
+      background: #0a1f14;
+      border: 1px solid #00ff9944;
+      border-radius: 50%;
+      color: #00ff99;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
 
     .result-box ol li code {
-      background: #0f0f0f;
+      background: #080c10;
       color: #00ff99;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.9rem;
+      padding: 2px 10px;
+      border-radius: 5px;
+      font-size: 0.88rem;
+      border: 1px solid #1a2a1e;
     }
 
-    .quick-issues {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 40px;
-      max-width: 600px;
-    }
-
-    .quick-issues button {
-      padding: 8px 16px;
-      background: transparent;
-      border: 1px solid #00ff99;
-      color: #00ff99;
-      border-radius: 20px;
-      cursor: pointer;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
-
-    .quick-issues button:hover {
-      background: #00ff99;
-      color: #0f0f0f;
-    }
-
-    .error { color: #ff4d4d; }
-
+    /* ── FOOTER ── */
     footer {
-      margin-top: 60px;
-      color: #444;
-      font-size: 0.8rem;
+      text-align: center;
+      color: #222;
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      padding-bottom: 20px;
     }
+
+    footer span { color: #00ff9944; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>⚡ LinuxLab</h1>
-    <p>Your Linux troubleshooting companion</p>
+    <p>Linux Troubleshooting Platform</p>
+    <div class="badge">v2.0 — FastAPI + Docker</div>
   </header>
 
-  <div class="quick-issues">
-    <button onclick="search('disk-full')">💾 Disk Full</button>
-    <button onclick="search('high-cpu')">🔥 High CPU</button>
-    <button onclick="search('service-not-starting')">⚙️ Service Not Starting</button>
-    <button onclick="search('no-internet')">🌐 No Internet</button>
+  <div class="search-wrapper">
+    <input type="text" id="issueInput" placeholder="Type an issue e.g. disk-full, ssh-timeout..." />
+    <button onclick="search()">Fix It →</button>
   </div>
 
-  <div class="search-box">
-    <input type="text" id="issueInput" placeholder="e.g. disk-full, high-cpu, no-internet..." />
-    <button onclick="search()">Fix It</button>
+  <div class="categories">
+
+    <div class="category">
+      <h3>💾 Disk & Storage</h3>
+      <button onclick="search('disk-full')">Disk Full</button>
+      <button onclick="search('disk-mount-error')">Mount Error</button>
+      <button onclick="search('filesystem-corrupt')">Corrupt FS</button>
+      <button onclick="search('file-not-found')">File Not Found</button>
+    </div>
+
+    <div class="category">
+      <h3>🧠 Memory</h3>
+      <button onclick="search('ram-full')">RAM Full</button>
+      <button onclick="search('swap-full')">Swap Full</button>
+    </div>
+
+    <div class="category">
+      <h3>🌐 Network & SSH</h3>
+      <button onclick="search('no-internet')">No Internet</button>
+      <button onclick="search('ssh-connection-refused')">SSH Refused</button>
+      <button onclick="search('ssh-permission-denied')">SSH Denied</button>
+      <button onclick="search('ssh-timeout')">SSH Timeout</button>
+    </div>
+
+    <div class="category">
+      <h3>📦 Packages</h3>
+      <button onclick="search('apt-update-error')">APT Error</button>
+      <button onclick="search('package-not-found')">Package Not Found</button>
+      <button onclick="search('dpkg-locked')">DPKG Locked</button>
+    </div>
+
+    <div class="category">
+      <h3>🔥 CPU & Processes</h3>
+      <button onclick="search('high-cpu')">High CPU</button>
+      <button onclick="search('process-not-responding')">Not Responding</button>
+      <button onclick="search('zombie-process')">Zombie Process</button>
+      <button onclick="search('background-jobs')">Background Jobs</button>
+    </div>
+
+    <div class="category">
+      <h3>🔒 Firewall & Ports</h3>
+      <button onclick="search('port-blocked')">Port Blocked</button>
+      <button onclick="search('firewall-locked-out')">Locked Out</button>
+      <button onclick="search('check-open-ports')">Check Ports</button>
+    </div>
+
+    <div class="category">
+      <h3>👤 Users & Permissions</h3>
+      <button onclick="search('permission-denied')">Permission Denied</button>
+      <button onclick="search('user-not-in-sudoers')">Not in Sudoers</button>
+      <button onclick="search('add-new-user')">Add New User</button>
+    </div>
+
+    <div class="category">
+      <h3>⚙️ Services</h3>
+      <button onclick="search('service-not-starting')">Not Starting</button>
+      <button onclick="search('service-stopped')">Service Stopped</button>
+      <button onclick="search('service-failed')">Service Failed</button>
+    </div>
+
   </div>
 
   <div class="result-box" id="resultBox">
-    <h2 id="resultTitle"></h2>
+    <div class="result-header">
+      <div class="dot"></div>
+      <h2 id="resultTitle"></h2>
+    </div>
     <ol id="resultSteps"></ol>
   </div>
 
-  <footer>LinuxLab v1.0 — Built with FastAPI</footer>
+  <footer>LinuxLab &mdash; Built with <span>FastAPI</span> + <span>Docker</span></footer>
 
   <script>
     async function search(quickIssue) {
@@ -177,23 +338,29 @@
 
       document.getElementById('issueInput').value = input;
 
-      const res = await fetch(`/troubleshoot/${input}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`/troubleshoot/${input}`);
+        const data = await res.json();
 
-      const box = document.getElementById('resultBox');
-      const title = document.getElementById('resultTitle');
-      const steps = document.getElementById('resultSteps');
+        const box = document.getElementById('resultBox');
+        const title = document.getElementById('resultTitle');
+        const steps = document.getElementById('resultSteps');
 
-      title.textContent = `Issue: ${data.issue}`;
-      steps.innerHTML = '';
+        title.textContent = `Issue: ${data.issue.replace(/-/g, ' ')}`;
+        steps.innerHTML = '';
 
-      data.steps.forEach(step => {
-        const li = document.createElement('li');
-        li.innerHTML = step.replace(/`([^`]+)`/g, '<code>$1</code>');
-        steps.appendChild(li);
-      });
+        data.steps.forEach(step => {
+          const li = document.createElement('li');
+          li.innerHTML = step.replace(/`([^`]+)`/g, '<code>$1</code>');
+          steps.appendChild(li);
+        });
 
-      box.style.display = 'block';
+        box.style.display = 'block';
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      } catch (err) {
+        console.error('Error fetching solution:', err);
+      }
     }
 
     document.getElementById('issueInput').addEventListener('keydown', function(e) {
