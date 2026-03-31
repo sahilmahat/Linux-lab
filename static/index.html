@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LinuxLab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0f0f0f;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      color: #00ff99;
+      text-shadow: 0 0 10px #00ff99;
+      letter-spacing: 4px;
+    }
+
+    header p {
+      color: #888;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 40px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 14px 18px;
+      background: #1a1a1a;
+      border: 1px solid #00ff99;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 1rem;
+      font-family: 'Courier New', monospace;
+      outline: none;
+    }
+
+    .search-box input::placeholder { color: #555; }
+
+    .search-box button {
+      padding: 14px 24px;
+      background: #00ff99;
+      color: #0f0f0f;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      transition: background 0.2s;
+    }
+
+    .search-box button:hover { background: #00cc77; }
+
+    .result-box {
+      width: 100%;
+      max-width: 600px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 24px;
+      display: none;
+    }
+
+    .result-box h2 {
+      color: #00ff99;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .result-box ol {
+      padding-left: 20px;
+    }
+
+    .result-box ol li {
+      margin-bottom: 12px;
+      line-height: 1.6;
+      color: #ccc;
+    }
+
+    .result-box ol li code {
+      background: #0f0f0f;
+      color: #00ff99;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .quick-issues {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+
+    .quick-issues button {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid #00ff99;
+      color: #00ff99;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .quick-issues button:hover {
+      background: #00ff99;
+      color: #0f0f0f;
+    }
+
+    .error { color: #ff4d4d; }
+
+    footer {
+      margin-top: 60px;
+      color: #444;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>⚡ LinuxLab</h1>
+    <p>Your Linux troubleshooting companion</p>
+  </header>
+
+  <div class="quick-issues">
+    <button onclick="search('disk-full')">💾 Disk Full</button>
+    <button onclick="search('high-cpu')">🔥 High CPU</button>
+    <button onclick="search('service-not-starting')">⚙️ Service Not Starting</button>
+    <button onclick="search('no-internet')">🌐 No Internet</button>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="issueInput" placeholder="e.g. disk-full, high-cpu, no-internet..." />
+    <button onclick="search()">Fix It</button>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <h2 id="resultTitle"></h2>
+    <ol id="resultSteps"></ol>
+  </div>
+
+  <footer>LinuxLab v1.0 — Built with FastAPI</footer>
+
+  <script>
+    async function search(quickIssue) {
+      const input = quickIssue || document.getElementById('issueInput').value.trim();
+      if (!input) return;
+
+      document.getElementById('issueInput').value = input;
+
+      const res = await fetch(`/troubleshoot/${input}`);
+      const data = await res.json();
+
+      const box = document.getElementById('resultBox');
+      const title = document.getElementById('resultTitle');
+      const steps = document.getElementById('resultSteps');
+
+      title.textContent = `Issue: ${data.issue}`;
+      steps.innerHTML = '';
+
+      data.steps.forEach(step => {
+        const li = document.createElement('li');
+        li.innerHTML = step.replace(/`([^`]+)`/g, '<code>$1</code>');
+        steps.appendChild(li);
+      });
+
+      box.style.display = 'block';
+    }
+
+    document.getElementById('issueInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') search();
+    });
+  </script>
+
+</body>
+</html>
