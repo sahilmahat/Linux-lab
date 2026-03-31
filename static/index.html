@@ -248,12 +248,15 @@
 </head>
 <body>
 
-  <header>
+<header>
     <h1>⚡ LinuxLab</h1>
     <p>Linux Troubleshooting Platform</p>
     <div class="badge">v2.0 — FastAPI + Docker</div>
+    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+      <a href="/login" style="padding: 8px 20px; border: 1px solid #00ff9944; border-radius: 20px; color: #00ff99; text-decoration: none; font-size: 0.82rem; letter-spacing: 1px; transition: all 0.2s;" onmouseover="this.style.background='#0a1f14'" onmouseout="this.style.background='transparent'">Login</a>
+      <a href="/signup" style="padding: 8px 20px; background: #00ff99; border-radius: 20px; color: #080c10; text-decoration: none; font-size: 0.82rem; font-weight: bold; letter-spacing: 1px;">Sign Up</a>
+    </div>
   </header>
-
   <div class="search-wrapper">
     <input type="text" id="issueInput" placeholder="Type an issue e.g. disk-full, ssh-timeout..." />
     <button onclick="search()">Fix It →</button>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LinuxLab — Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #080c10;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #1a2a1e;
+    }
+
+    header h1 {
+      color: #00ff99;
+      font-size: 1.5rem;
+      letter-spacing: 4px;
+      text-shadow: 0 0 15px #00ff9966;
+    }
+
+    .nav-links { display: flex; gap: 16px; align-items: center; }
+
+    .nav-links a {
+      color: #555;
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #00ff99; }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid #ff4d4d44;
+      color: #ff4d4d;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #ff4d4d22;
+      border-color: #ff4d4d;
+    }
+
+    .welcome {
+      max-width: 900px;
+      margin: 0 auto 30px;
+    }
+
+    .welcome h2 {
+      font-size: 1.2rem;
+      color: #e0e0e0;
+    }
+
+    .welcome h2 span { color: #00ff99; }
+
+    .welcome p {
+      color: #555;
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: #0d1117;
+      border: 1px solid #1a2a1e;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .panel h3 {
+      color: #00ff99;
+      font-size: 0.82rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1a2a1e;
+    }
+
+    .issue-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #0f1419;
+    }
+
+    .issue-item:last-child { border-bottom: none; }
+
+    .issue-name {
+      color: #aabbcc;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .issue-name:hover { color: #00ff99; }
+
+    .remove-btn {
+      background: transparent;
+      border: none;
+      color: #ff4d4d66;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: 'Courier New', monospace;
+      transition: color 0.2s;
+    }
+
+    .remove-btn:hover { color: #ff4d4d; }
+
+    .history-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #0f1419;
+      color: #666;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-item span { color: #333; font-size: 0.78rem; }
+
+    .empty {
+      color: #333;
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .go-home {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid #1a2a1e;
+      border-radius: 8px;
+      color: #555;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .go-home:hover {
+      border-color: #00ff99;
+      color: #00ff99;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>⚡ LinuxLab</h1>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="welcome">
+    <h2>Welcome back, <span id="username">...</span></h2>
+    <p>Your saved issues and search history</p>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h3>📌 Saved Issues</h3>
+      <div id="savedList"><div class="empty">Loading...</div></div>
+      <a href="/" class="go-home">+ Save more issues</a>
+    </div>
+
+    <div class="panel">
+      <h3>🕘 Search History</h3>
+      <div id="historyList"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+
+    async function fetchUser() {
+      const res = await fetch('/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('username').textContent = data.username;
+    }
+
+    async function fetchSaved() {
+      const res = await fetch('/api/saved', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const list = document.getElementById('savedList');
+
+      if (!data.length) {
+        list.innerHTML = '<div class="empty">No saved issues yet</div>';
+        return;
+      }
+
+      list.innerHTML = data.map(item => `
+        <div class="issue-item">
+          <span class="issue-name" onclick="window.location.href='/?issue=${item.issue_key}'">
+            ${item.issue_key.replace(/-/g, ' ')}
+          </span>
+          <button class="remove-btn" onclick="removeIssue('${item.issue_key}')">✕ remove</button>
+        </div>
+      `).join('');
+    }
+
+    async function fetchHistory() {
+      const res = await fetch('/api/history', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const list = document.getElementById('historyList');
+
+      if (!data.length) {
+        list.innerHTML = '<div class="empty">No history yet</div>';
+        return;
+      }
+
+      const recent = data.slice(-10).reverse();
+      list.innerHTML = recent.map(item => `
+        <div class="history-item">
+          <span>${item.issue_key.replace(/-/g, ' ')}</span>
+          <span>${new Date(item.searched_at).toLocaleDateString()}</span>
+        </div>
+      `).join('');
+    }
+
+    async function removeIssue(issueKey) {
+      await fetch(`/api/saved/${issueKey}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      fetchSaved();
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+
+    fetchUser();
+    fetchSaved();
+    fetchHistory();
+  </script>
+</body>
+</html>

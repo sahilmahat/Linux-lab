@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LinuxLab — Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #080c10;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #0d1117;
+      border: 1px solid #1a2a1e;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo h1 {
+      font-size: 2rem;
+      color: #00ff99;
+      text-shadow: 0 0 20px #00ff9966;
+      letter-spacing: 4px;
+    }
+
+    .logo p {
+      color: #555;
+      font-size: 0.85rem;
+      margin-top: 6px;
+      letter-spacing: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #00ff99;
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 16px;
+      background: #080c10;
+      border: 1px solid #1a2a1e;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 0.95rem;
+      font-family: 'Courier New', monospace;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: #00ff99;
+      box-shadow: 0 0 10px #00ff9922;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 14px;
+      background: #00ff99;
+      color: #080c10;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      margin-top: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      background: #00cc77;
+      box-shadow: 0 0 15px #00ff9944;
+    }
+
+    .error {
+      color: #ff4d4d;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .success {
+      color: #00ff99;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 24px;
+      color: #555;
+      font-size: 0.85rem;
+    }
+
+    .footer-link a {
+      color: #00ff99;
+      text-decoration: none;
+    }
+
+    .footer-link a:hover { text-decoration: underline; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #1a2a1e;
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <h1>⚡ LinuxLab</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@example.com" />
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" />
+    </div>
+
+    <button type="submit" onclick="login()">Login →</button>
+
+    <div class="error" id="errorMsg"></div>
+    <div class="success" id="successMsg"></div>
+
+    <hr class="divider" />
+
+    <div class="footer-link">
+      Don't have an account? <a href="/signup">Sign up</a>
+    </div>
+    <div class="footer-link" style="margin-top: 10px;">
+      <a href="/">← Back to LinuxLab</a>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Please fill in all fields';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorMsg.textContent = data.detail || 'Login failed';
+          errorMsg.style.display = 'block';
+          return;
+        }
+
+        // Save token to localStorage
+        localStorage.setItem('token', data.access_token);
+
+        successMsg.textContent = 'Login successful! Redirecting...';
+        successMsg.style.display = 'block';
+
+        setTimeout(() => window.location.href = '/dashboard', 1000);
+
+      } catch (err) {
+        errorMsg.textContent = 'Something went wrong. Try again.';
+        errorMsg.style.display = 'block';
+      }
+    }
+
+    // Allow Enter key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') login();
+    });
+
+    // If already logged in redirect to dashboard
+    if (localStorage.getItem('token')) {
+      window.location.href = '/dashboard';
+    }
+  </script>
+</body>
+</html>
