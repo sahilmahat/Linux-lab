@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres:16
+    container_name: linuxlab-db
+    environment:
+      POSTGRES_USER: linuxlab_user
+      POSTGRES_PASSWORD: linuxlab123
+      POSTGRES_DB: linuxlab
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U linuxlab_user -d linuxlab"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: linuxlab-app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://linuxlab_user:linuxlab123@db:5432/linuxlab
+      SECRET_KEY: supersecretkey123changethislater
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
