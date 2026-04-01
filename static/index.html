@@ -233,7 +233,137 @@
       font-size: 0.88rem;
       border: 1px solid #1a2a1e;
     }
+/* ── AI SECTION ── */
+    .ai-section {
+      max-width: 680px;
+      margin: 0 auto 50px;
+      background: #0d1117;
+      border: 1px solid #1a2a1e;
+      border-radius: 14px;
+      padding: 28px;
+    }
 
+    .ai-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #1a2a1e;
+    }
+
+    .ai-header h3 {
+      color: #00ff99;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .ai-badge {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border: 1px solid #00ff9944;
+      border-radius: 20px;
+      color: #00ff9988;
+      letter-spacing: 1px;
+    }
+
+    .ai-input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ai-input-wrap textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: #080c10;
+      border: 1px solid #1a2a1e;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 0.92rem;
+      font-family: 'Courier New', monospace;
+      outline: none;
+      resize: vertical;
+      min-height: 90px;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .ai-input-wrap textarea:focus {
+      border-color: #00ff99;
+      box-shadow: 0 0 10px #00ff9922;
+    }
+
+    .ai-input-wrap textarea::placeholder { color: #333; }
+
+
+    .ai-btn {
+      align-self: flex-end;
+      padding: 11px 26px;
+      background: #00ff99;
+      color: #080c10;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      transition: background 0.2s, box-shadow 0.2s;
+      display: block;
+      width: auto;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .ai-btn:hover {
+      background: #00cc77;
+      box-shadow: 0 0 12px #00ff9944;
+    }
+
+    .ai-result {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #1a2a1e;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .ai-result-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: #00ff99;
+      font-size: 0.82rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    #aiAnswer {
+      color: #aabbcc;
+      font-size: 0.9rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    #aiAnswer code {
+      background: #080c10;
+      color: #00ff99;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      border: 1px solid #1a2a1e;
+    }
+
+    .ai-loading {
+      color: #555;
+      font-size: 0.88rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -323,6 +453,24 @@
     </div>
 
   </div>
+<!-- AI Assistant Section -->
+  <div class="ai-section">
+    <div class="ai-header">
+      <h3>🤖 Ask AI Assistant</h3>
+      <span class="ai-badge">Powered by Gemini</span>
+    </div>
+    <div class="ai-input-wrap">
+      <textarea id="aiInput" placeholder="Ask any Linux question... e.g. How do I check which process is using port 3000?"></textarea>
+       <button class="ai-btn" onclick="askAI()">Ask AI →</button>
+    </div>
+    <div class="ai-result" id="aiResult" style="display:none;">
+      <div class="ai-result-header">
+        <div class="dot"></div>
+        <span>AI Response</span>
+      </div>
+      <div id="aiAnswer"></div>
+    </div>
+  </div>
 
   <div class="result-box" id="resultBox">
     <div class="result-header">
@@ -333,8 +481,8 @@
   </div>
 
   <footer>LinuxLab &mdash; Built with <span>FastAPI</span> + <span>Docker</span></footer>
-
-  <script>
+ 
+<script>
     async function search(quickIssue) {
       const input = quickIssue || document.getElementById('issueInput').value.trim();
       if (!input) return;
@@ -369,7 +517,44 @@
     document.getElementById('issueInput').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') search();
     });
-  </script>
 
-</body>
-</html>
+    async function askAI() {
+      const question = document.getElementById('aiInput').value.trim();
+      if (!question) return;
+
+      const resultBox = document.getElementById('aiResult');
+      const answerDiv = document.getElementById('aiAnswer');
+
+      resultBox.style.display = 'block';
+      answerDiv.innerHTML = '<span class="ai-loading">⚡ Thinking...</span>';
+
+      try {
+        const res = await fetch('/ai/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          answerDiv.innerHTML = `<span style="color:#ff4d4d">Error: ${data.detail}</span>`;
+          return;
+        }
+
+        const formatted = data.answer
+          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#e0e0e0">$1</strong>');
+
+        answerDiv.innerHTML = formatted;
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      } catch (err) {
+        answerDiv.innerHTML = '<span style="color:#ff4d4d">Something went wrong. Try again.</span>';
+      }
+    }
+
+    document.getElementById('aiInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && e.ctrlKey) askAI();
+    });
+  </script>

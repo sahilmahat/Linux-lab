@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from app.database import Base, engine
 from app.routes import auth_routes, issues_routes
 from app import models
+from app.routes import auth_routes, issues_routes, ai_routes
 
 # Create tables
 models.Base.metadata.create_all(bind=engine)
@@ -13,7 +14,7 @@ app = FastAPI(title="LinuxLab", version="2.0")
 # Include routers
 app.include_router(auth_routes.router)
 app.include_router(issues_routes.router)
-
+app.include_router(ai_routes.router)
 # Static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
